@@ -1,6 +1,6 @@
 #' Perform LysipheN data analysis and vis
 #'
-#' @param data_path String with the path to locate the Lysiphen file(s).
+#' @param data_path String with the path to locate the LysipheN file(s).
 #' @param file_ext csv by default. Also xls or xlsx available.
 #' @param threshold Integer of length 1 with the maximum weight change allowed (in grams). Any weight lower or higher than this offset will be detected as outlier and imputed by the immediate previous one.
 #'
