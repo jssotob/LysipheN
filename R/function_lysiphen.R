@@ -94,34 +94,34 @@ lysiphen <- function(data_path, file_ext = "csv", threshold = 100) {
 
   # Irrigation --------------------------------------------------------------
 
-  irrigation <- list()
-
-  for (i in 1:length(unit_date)) {
-    if (any(unit_date[[i]]$IRRIGATION_STATUS)) {
-      rp <- which(unit_date[[i]]$IRRIGATION_STATUS) %>% max()
-      unit_date[[i]]$IRRIGATION_STATUS[rp + 1] <- TRUE
-      ini <- which(unit_date[[i]]$IRRIGATION_STATUS) %>% min()
-      ini <- unit_date[[i]]$weight_g[ini]
-
-      fin <- which(unit_date[[i]]$IRRIGATION_STATUS) %>% max()
-      fin <- unit_date[[i]]$weight_g[fin]
-
-      irrigation[[i]] <- unit_date[[i]] %>%
-        dplyr::select(DATE, CROP, LOCATION) %>%
-        .[1, ] %>%
-        dplyr::mutate(
-          ini_irrigation = ini,
-          fin_irrigation = fin
-        )
-
-      rm(rp, ini, fin)
-    } else {
-      cat(paste0(i, " not any T \n"))
-    }
-  }
-
-  irrigation <- do.call(rbind, irrigation)
-  rm(i)
+  # irrigation <- list()
+  #
+  # for (i in 1:length(unit_date)) {
+  #   if (any(unit_date[[i]]$IRRIGATION_STATUS)) {
+  #     rp <- which(unit_date[[i]]$IRRIGATION_STATUS) %>% max()
+  #     unit_date[[i]]$IRRIGATION_STATUS[rp + 1] <- TRUE
+  #     ini <- which(unit_date[[i]]$IRRIGATION_STATUS) %>% min()
+  #     ini <- unit_date[[i]]$weight_g[ini]
+  #
+  #     fin <- which(unit_date[[i]]$IRRIGATION_STATUS) %>% max()
+  #     fin <- unit_date[[i]]$weight_g[fin]
+  #
+  #     irrigation[[i]] <- unit_date[[i]] %>%
+  #       dplyr::select(DATE, CROP, LOCATION) %>%
+  #       .[1, ] %>%
+  #       dplyr::mutate(
+  #         ini_irrigation = ini,
+  #         fin_irrigation = fin
+  #       )
+  #
+  #     rm(rp, ini, fin)
+  #   } else {
+  #     cat(paste0(i, " not any T \n"))
+  #   }
+  # }
+  #
+  # irrigation <- do.call(rbind, irrigation)
+  # rm(i)
 
 
   # Transpiration -----------------------------------------------------------
