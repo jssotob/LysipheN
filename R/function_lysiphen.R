@@ -18,27 +18,27 @@ lysiphen <- function(data_path, file_ext = "csv", threshold = 100) {
   if (file_ext == "csv") {
     data <- lapply(
       list.files(data_path,
-        pattern = paste0("\\.", file_ext, "$"),
-        full.names = T
+                 pattern = paste0("\\.", file_ext, "$"),
+                 full.names = T
       ),
       function(x) read.csv(x, stringsAsFactors = F)
     ) %>%
       do.call(rbind, .)
     cat(paste0(list.files(data_path,
-      pattern = paste0("\\.", file_ext, "$")
+                          pattern = paste0("\\.", file_ext, "$")
     ) %>%
       length(), " files were found and loaded", "\n"))
   } else if (file_ext %in% c("xls", "xlsx")) {
     data <- lapply(
       list.files(data_path,
-        pattern = paste0("\\.", file_ext, "$"),
-        full.names = T
+                 pattern = paste0("\\.", file_ext, "$"),
+                 full.names = T
       ),
       function(x) readxl::read_excel(x, sheet = 1)
     ) %>%
       do.call(rbind, .)
     cat(paste0(list.files(data_path,
-      pattern = paste0("\\.", file_ext, "$")
+                          pattern = paste0("\\.", file_ext, "$")
     ) %>%
       length(), " files were found and loaded", "\n"))
   } else {
@@ -80,7 +80,7 @@ lysiphen <- function(data_path, file_ext = "csv", threshold = 100) {
     detected <- list()
     for (j in 2:nrow(unit_date[[i]])) {
       if (unit_date[[i]]$weight_g[j] >= (unit_date[[i]]$weight_g[j - 1] + threshold) ||
-        unit_date[[i]]$weight_g[j] <= (unit_date[[i]]$weight_g[j - 1] - threshold)) {
+          unit_date[[i]]$weight_g[j] <= (unit_date[[i]]$weight_g[j - 1] - threshold)) {
         detected[[i]] <- unit_date[[i]][c(j - 1, j), ] # just to show, but keep j only
         unit_date[[i]]$weight_g[j] <- unit_date[[i]]$weight_g[j - 1]
       }
@@ -92,36 +92,7 @@ lysiphen <- function(data_path, file_ext = "csv", threshold = 100) {
   outliers <- DT::datatable(do.call(rbind, outliers), rownames = F) # Output
   rm(i, j)
 
-  # Irrigation --------------------------------------------------------------
 
-  # irrigation <- list()
-  #
-  # for (i in 1:length(unit_date)) {
-  #   if (any(unit_date[[i]]$IRRIGATION_STATUS)) {
-  #     rp <- which(unit_date[[i]]$IRRIGATION_STATUS) %>% max()
-  #     unit_date[[i]]$IRRIGATION_STATUS[rp + 1] <- TRUE
-  #     ini <- which(unit_date[[i]]$IRRIGATION_STATUS) %>% min()
-  #     ini <- unit_date[[i]]$weight_g[ini]
-  #
-  #     fin <- which(unit_date[[i]]$IRRIGATION_STATUS) %>% max()
-  #     fin <- unit_date[[i]]$weight_g[fin]
-  #
-  #     irrigation[[i]] <- unit_date[[i]] %>%
-  #       dplyr::select(DATE, CROP, LOCATION) %>%
-  #       .[1, ] %>%
-  #       dplyr::mutate(
-  #         ini_irrigation = ini,
-  #         fin_irrigation = fin
-  #       )
-  #
-  #     rm(rp, ini, fin)
-  #   } else {
-  #     cat(paste0(i, " not any T \n"))
-  #   }
-  # }
-  #
-  # irrigation <- do.call(rbind, irrigation)
-  # rm(i)
 
 
   # Transpiration -----------------------------------------------------------
@@ -151,6 +122,17 @@ lysiphen <- function(data_path, file_ext = "csv", threshold = 100) {
     x$cumu_tr <- cumu_tr
     return(x)
   })
+
+
+  # system weight plot ------------------------------------------------------
+
+  imputed <- do.call(rbind, unit_date) %>%
+    tidyr::unite(., col = "date_time", DATE, TIME, sep = "_") %>%
+    dplyr::mutate(date_time = lubridate::ymd_hms(date_time)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = date_time, y = weight_g, group = 1)) +
+    ggplot2::geom_line() +
+    ggplot2::facet_wrap(~LOCATION, scales = "free_y") +
+    ggplot2::labs(title = "System Weight (g)", x = "Date", y = "Weight (g)")
 
 
   # summary table -----------------------------------------------------------
@@ -263,6 +245,7 @@ lysiphen <- function(data_path, file_ext = "csv", threshold = 100) {
   output <- list(
     data = unit_date,
     outliers = outliers,
+    weight = imputed,
     summary_table = summary_table,
     env_plot = p_env,
     cum_transp_plots = list(
